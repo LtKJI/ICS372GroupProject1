@@ -1,0 +1,42 @@
+title Authentication Sequence
+GUI -> GUI : initialize()
+alt open JSON
+GUI->IO interface: chooseFile()
+
+
+IO interface -> IO interface: Open file directory
+note over IO interface: Fliters .JSON files
+
+
+IO interface->GUI: return getSelectedFile()
+else Read File
+GUI -> IO interface: ReadJson()
+IO interface-> Site: Create Site object.
+Site -> Site : getSiteID()
+Site -> IO interface: return siteID;
+Site -> Item : getItems()
+Item -> Site : return items in site
+Site -> IO interface: return items;
+note over IO interface: reader.close()
+GUI  -> GUI : Display JSON readings.
+else Collection Options
+note over GUI: Input site ID.
+
+
+opt Start collection
+    GUI -> Site : setRecording(true) 
+    else Stop Collection
+            GUI -> Site : setRecording(false) 
+end
+else View Reading
+    GUI -> GUI : display(selectedSite)
+
+else Export JSON
+Opt OK
+    GUI -> IO interface: OutputFile()
+    IO interface ->  IO interface: writeToFile()
+    note over IO interface: Successful
+else Cancel
+    note over GUI: Export Cancelled
+
+end

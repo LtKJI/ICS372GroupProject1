@@ -1,6 +1,9 @@
 package edu.metrostate.ics372groupproject1.scientificDataCollectionApp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -8,18 +11,22 @@ public class Site {
 	
 	private String siteID;
 	private boolean recording;
-	@SerializedName("site_readings")
-	@Expose
-	private ArrayList<Item> items = new ArrayList<Item>();
+	private Set<String> readingIDs = new HashSet<String>();
 
 	public Site() {
-		recording = true;
+		recording = false;
 	}
 	public Site (String id) {
 		siteID = id;
 	}
 	
-	
+	/**
+	 * Creating collection class to store objects read from JSON file.
+	 */
+	@SerializedName("site_readings")
+	@Expose
+	private ArrayList<Item> items = new ArrayList<Item>();
+
 	public String getSiteID() {
 		return siteID;
 	}
@@ -32,16 +39,19 @@ public class Site {
 		return items;
 	}
 
-	public void setItems(ArrayList<Item> items) {
-		this.items = items;
-	}
-	
 	public void setRecording(boolean t) {
 		this.recording = t;
 	}
 	
+	public void setItems(ArrayList<Item> items) {
+		this.items = items;
+	}
+	
 	public void addItem(Item i) {
-		this.items.add(i);
+		if(!readingIDs.contains(i.getReadingID())) {
+			this.items.add(i);
+			this.readingIDs.add(i.getReadingID());
+		}
 	}
 	
 	public boolean isRecording() {
