@@ -4,54 +4,48 @@ import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 
 public class IOInterface {
-	private String fileName;
-	private JFileChooser chooser;
+
 	private File outputFile;
-	private Component frame;
+//	private Component frame;
 	private Gson myGson;
 	private Site reading = new Site();
 	
 	//File chooser constructor
+	public IOInterface() {
+		myGson = new Gson();
+	}
 	public IOInterface(Component frame) {
-		fileName = "";
-		this.frame = frame;
+//		this.frame = frame;
 		myGson = new Gson();
 	}
 	
-	//method to choose a file, it returns the chosen file
-	public File chooseFile() throws IOException {
-		//Specify the current directory for the file chooser()
-        File currentDir = new File(System.getProperty("user.dir")+"/src");
-        chooser = new JFileChooser(currentDir);
-        
-        //filter on files with .text extension
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(".JSON files", "json");
-        this.chooser.setFileFilter(filter);
-        
-        //open the file chooser dialog box
-
-        int status = chooser.showOpenDialog(frame);
-        if(status == JFileChooser.APPROVE_OPTION) {
-
-            //Construct the output file name
-            fileName =  chooser.getSelectedFile().getName();
-        }
-        return chooser.getSelectedFile();
+	/*
+	 * ReadJSON method takes a file and reads the content into Objects
+	 */	
+	public void ReadJson(File input) throws Exception{
+		//Instantiates a BufferReader object that takes the input file as an argument 
+		BufferedReader reader = new BufferedReader(new FileReader(input));
+		Site mySite = myGson.fromJson(reader, Site.class);
+		
+		//If mySite is not null, add it to the collection on sites
+		if(mySite != null) {
+			reading = mySite;
+		}
+		reader.close();
 	}
 	
-	//Method to export reading to a file
+	/*
+	 * WriteToFile method takes as a parameters a list of sites
+	 * and a file name. It write the sites in the list to a file on the disk
+	 */
 	public void writeToFile(ArrayList<Site> site, String outputFileName) throws Exception{
 		//path and construct of the output file
 		outputFile = new File(System.getProperty("user.dir")+"/src/"+ outputFileName + ".json");
@@ -61,28 +55,9 @@ public class IOInterface {
 		myGson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
 		String jsonString = myGson.toJson(site);
 		writer.write(jsonString);
-		//successful export Message 
-		String message = String.format("%s has been written successfully! \n", outputFile.getName());
-		JOptionPane.showMessageDialog(frame, message);
+		
 		writer.close();
-
-	}
-	
-	//ReadJSON take a file and reads the content into Objects
-	public void ReadJson(File input) throws Exception{
-		//local variables to the read method
-		BufferedReader reader = new BufferedReader(new FileReader(input));
-		Site mySite = myGson.fromJson(reader, Site.class);
-		//If mySite is not null, add it to the collection on sites
-		if(mySite != null) {
-			reading = mySite;
-		}
-		reader.close();
-	}
-	
-	//method to get the input file name
-	public String getFileName() {
-		return fileName;
+		
 	}
 	
 	//get specified site from collection 

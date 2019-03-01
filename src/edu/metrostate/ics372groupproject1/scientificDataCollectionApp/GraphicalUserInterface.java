@@ -6,8 +6,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.border.BevelBorder;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -16,6 +18,7 @@ import javax.swing.ScrollPaneConstants;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
@@ -25,12 +28,14 @@ import javax.swing.border.EtchedBorder;
 public class GraphicalUserInterface {
 
 	private JFrame frame;
-	private JTextField textField;
+	private JTextField siteIDField;
 	private File JSONFile = null;
 	private String siteID;
 	private IOInterface myInterface;
 	private Site selectedSite;
-	private ArrayList<Site> listOfSite = new ArrayList<>();
+	private ArrayList <Site> listOfSite = new ArrayList<>();
+	private String fileName;
+	private JFileChooser chooser;
 
 	//Launch the application.
 	public static void main(String[] args) {
@@ -56,11 +61,11 @@ public class GraphicalUserInterface {
 	private void initialize() {
 		frame = new JFrame("Scientific Data Recorder");
 		frame.setFont(new Font("Tahoma", Font.BOLD, 13));
-		frame.setBounds(100, 100, 599, 723);
+		frame.setBounds(100, 100, 594, 744);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-		JTextArea textArea = new JTextArea();
-		JTextArea display = new JTextArea();
+		JTextArea fileNameDisply = new JTextArea();
+		JTextArea mainDisplay = new JTextArea();
 		JTextArea statusField = new JTextArea();
 		myInterface = new IOInterface(frame);
 		
@@ -74,13 +79,13 @@ public class GraphicalUserInterface {
 		UploadButton.setToolTipText("Navigate to the JSON file.");
 		UploadButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		UploadButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
-		UploadButton.setBounds(40, 74, 114, 23);
+		UploadButton.setBounds(33, 74, 114, 23);
 		frame.getContentPane().add(UploadButton);
 		UploadButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					JSONFile = myInterface.chooseFile();
-					textArea.setText(myInterface.getFileName());
+					JSONFile = chooseFile();
+					fileNameDisply.setText(getFileName());
 				}
 				catch(Exception e) {
 					JOptionPane.showMessageDialog(frame, e.getStackTrace());
@@ -88,11 +93,11 @@ public class GraphicalUserInterface {
 			}
 		});
 		
-		textArea.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		textArea.setEditable(false);
-		textArea.setFont(new Font("Tahoma", Font.ITALIC, 13));
-		textArea.setBounds(190, 74, 229, 22);
-		frame.getContentPane().add(textArea);
+		fileNameDisply.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		fileNameDisply.setEditable(false);
+		fileNameDisply.setFont(new Font("Tahoma", Font.ITALIC, 13));
+		fileNameDisply.setBounds(190, 74, 229, 22);
+		frame.getContentPane().add(fileNameDisply);
 		
 		
 		//This functional button will call the ReadJson() with the input JSON as parameter
@@ -100,7 +105,7 @@ public class GraphicalUserInterface {
 		readButton.setToolTipText("Read the selected JSON file.");
 		readButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		readButton.setFont(new Font("Tahoma", Font.BOLD, 12));
-		readButton.setBounds(40, 120, 114, 23);
+		readButton.setBounds(33, 123, 114, 23);
 		frame.getContentPane().add(readButton);
 		readButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -108,8 +113,8 @@ public class GraphicalUserInterface {
 				if(JSONFile != null) {
 					try {
 						myInterface.ReadJson(JSONFile);
-						//Display the content of the input JSON
-						display.setText(display.getText() +"\n"+ myInterface.getListOfSite());
+						//mainDisplay the content of the input JSON
+						mainDisplay.setText(mainDisplay.getText() +"\n"+ myInterface.getListOfSite());
 					}catch(Exception e) {
 						e.printStackTrace();
 						JOptionPane.showMessageDialog(frame, "Error Reading The File!");
@@ -127,18 +132,18 @@ public class GraphicalUserInterface {
 		frame.getContentPane().add(siteId);
 		
 		//Text field that takes the site ID of selected site
-		textField = new JTextField();
-		textField.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		textField.setBounds(190, 172, 151, 25);
-		frame.getContentPane().add(textField);
-		textField.setColumns(10);
-		textField.addActionListener(new ActionListener() {
+		siteIDField = new JTextField();
+		siteIDField.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		siteIDField.setBounds(147, 172, 114, 25);
+		frame.getContentPane().add(siteIDField);
+		siteIDField.setColumns(10);
+		siteIDField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				siteID = textField.getText();
+				siteID = siteIDField.getText();
 				//create a new site to contain the collection
 				selectedSite = new Site();
-				//Display the siteID to the user
-				textField.setText("");
+				//mainDisplay the siteID to the user
+				siteIDField.setText("");
 				statusField.setText("locationID: "+siteID);
 			}
 		});
@@ -150,7 +155,7 @@ public class GraphicalUserInterface {
 		startButton.setForeground(Color.BLACK);
 		startButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		startButton.setFont(new Font("Tahoma", Font.BOLD, 12));
-		startButton.setBounds(313, 220, 114, 23);
+		startButton.setBounds(305, 172, 114, 23);
 		frame.getContentPane().add(startButton);
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -171,7 +176,7 @@ public class GraphicalUserInterface {
 		EndButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		EndButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		EndButton.setBackground(UIManager.getColor("Button.background"));
-		EndButton.setBounds(432, 220, 114, 23);
+		EndButton.setBounds(432, 172, 114, 23);
 		frame.getContentPane().add(EndButton);
 		EndButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -189,16 +194,16 @@ public class GraphicalUserInterface {
 		});
 		statusField.setEditable(false);
 		statusField.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		statusField.setBounds(40, 219, 258, 23);
+		statusField.setBounds(33, 267, 258, 23);
 		frame.getContentPane().add(statusField);
 		
 		
 		//this Text area will contain the site reading 
-		display.setEditable(false);
-		display.setLineWrap(true);
-		display.setBorder(new TitledBorder ( new EtchedBorder (), "Site Reading"));
-		JScrollPane scrollPane = new JScrollPane(display);
-		scrollPane.setBounds(40, 303, 506, 313);
+		mainDisplay.setEditable(false);
+		mainDisplay.setLineWrap(true);
+		mainDisplay.setBorder(new TitledBorder ( new EtchedBorder (), "Site Reading"));
+		JScrollPane scrollPane = new JScrollPane(mainDisplay);
+		scrollPane.setBounds(33, 347, 506, 313);
 		scrollPane.setVerticalScrollBarPolicy ( ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
 		frame.getContentPane().add(scrollPane);
 
@@ -221,7 +226,7 @@ public class GraphicalUserInterface {
 		});
 		addButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		addButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
-		addButton.setBounds(39, 269, 115, 23);
+		addButton.setBounds(33, 301, 115, 23);
 		frame.getContentPane().add(addButton);
 		
 		//View the site collections
@@ -230,17 +235,17 @@ public class GraphicalUserInterface {
 		viewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (siteID != null) {
-					//display a selected site's reading
-					display.setText(selectedSite.toString());
+					//mainDisplay a selected site's reading
+					mainDisplay.setText(selectedSite.toString());
 				}
 				else {
-					JOptionPane.showMessageDialog(frame, "Nothing to display!");
+					JOptionPane.showMessageDialog(frame, "Nothing to mainDisplay!");
 				}
 			}
 		});
 		viewButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		viewButton.setFont(new Font("Tahoma", Font.BOLD, 12));
-		viewButton.setBounds(40, 638, 114, 23);
+		viewButton.setBounds(190, 301, 114, 23);
 		frame.getContentPane().add(viewButton);
 		
 		
@@ -256,6 +261,10 @@ public class GraphicalUserInterface {
 						outputFileName = "SiteRecord";
 					}
 					myInterface.writeToFile(listOfSite, outputFileName);
+					
+					//successful export Message is mainDisplayed on the screen
+					String message = String.format("%s has been written successfully! \n", outputFileName);
+					JOptionPane.showMessageDialog(frame, message);
 				}catch(Exception e) {
 					JOptionPane.showMessageDialog(frame, "Export Cancelled!");
 				}
@@ -264,7 +273,46 @@ public class GraphicalUserInterface {
 		exportButton.setAutoscrolls(true);
 		exportButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		exportButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, Color.DARK_GRAY, null));
-		exportButton.setBounds(432, 638, 114, 23);
+		exportButton.setBounds(432, 671, 114, 23);
 		frame.getContentPane().add(exportButton);
+		
+		JButton btnNewButton = new JButton("Add New Reading");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnNewButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		btnNewButton.setBounds(33, 218, 167, 23);
+		frame.getContentPane().add(btnNewButton);
+	}
+	
+	/*
+	 * ChooseFile allow to browse the file directory, and to choose a file, it returns the chosen file
+	 */	
+	public File chooseFile() throws IOException {
+		//Specify the current directory for the file chooser()
+        File currentDir = new File(System.getProperty("user.dir")+"/src");
+        chooser = new JFileChooser(currentDir);
+        
+        //filter on files with .text extension
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(".JSON files", "json");
+        this.chooser.setFileFilter(filter);
+        
+        //open the file chooser dialog box
+
+        int status = chooser.showOpenDialog(frame);
+        if(status == JFileChooser.APPROVE_OPTION) {
+
+            //Construct the output file name
+            fileName =  chooser.getSelectedFile().getName();
+        }
+        return chooser.getSelectedFile();
+	}
+	
+	//method to get the input file name
+	private String getFileName() {
+		return fileName;
 	}
 }
