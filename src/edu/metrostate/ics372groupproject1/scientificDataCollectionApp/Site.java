@@ -17,6 +17,7 @@ public class Site {
 		recording = false;
 	}
 	public Site (String id) {
+		this();
 		siteID = id;
 	}
 	

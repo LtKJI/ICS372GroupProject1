@@ -1,30 +1,23 @@
 package edu.metrostate.ics372groupproject1.scientificDataCollectionApp;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 
 public class IOInterface {
-
 	private File outputFile;
-//	private Component frame;
 	private Gson myGson;
-	private Site reading = new Site();
+	private ArrayList <Item> readings;
 	
-	//File chooser constructor
+	//IOInterface constructor, initialize class members
 	public IOInterface() {
 		myGson = new Gson();
-	}
-	public IOInterface(Component frame) {
-//		this.frame = frame;
-		myGson = new Gson();
+		readings = new ArrayList<>();
 	}
 	
 	/*
@@ -35,9 +28,9 @@ public class IOInterface {
 		BufferedReader reader = new BufferedReader(new FileReader(input));
 		Site mySite = myGson.fromJson(reader, Site.class);
 		
-		//If mySite is not null, add it to the collection on sites
+		//If mySite is not null, point readings to the list of items in file
 		if(mySite != null) {
-			reading = mySite;
+			readings = mySite.getItems();
 		}
 		reader.close();
 	}
@@ -60,23 +53,23 @@ public class IOInterface {
 		
 	}
 	
-	//get specified site from collection 
-	public void getSite(String siteID, Site pickedSite) {
-		for(Item item : reading.getItems()) {
+	//get specified site reading from the list of all site readings 
+	public void getSiteReadings(String siteID, Site pickedSite) {
+		for(Item item : readings) {
+			//Only the item with matching Site ID are add 
 			if(item.getSiteID().equals(siteID) && pickedSite.isRecording()) {
-				//Only the item with matching Site ID are add 
 				pickedSite.addItem(item);
 			}
 		}
 	}
-
+	
 	//get all the site collections
-	public String getListOfSite() {
-		String sites = "";
-		for(Item i : reading.getItems()) {
-			sites += i.toString()+ "\n\n"; 
+	public String getReadings() {
+		String reading = "";
+		for(Item i : readings) {
+			reading += i.toString()+ "\n\n"; 
 		}
-		return sites;
+		return reading;
 	}
 	
 	// The method set up the path and name of the output file to write to
