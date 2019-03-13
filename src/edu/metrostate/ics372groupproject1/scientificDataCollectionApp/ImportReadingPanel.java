@@ -31,53 +31,58 @@ import javax.swing.border.EtchedBorder;
 @SuppressWarnings("serial")
 public class ImportReadingPanel extends JPanel {
 	
-	
-	private JFrame frame;
-	private JTextField siteIDField;
-	private File JSONFile = null;
-	private String siteID;
-	private IOInterface myInterface;
-	private Site selectedSite;
-	private ArrayList <Site> siteList;
+	private File importedFile = null;
 	private String fileName;
+	private String siteID;
+	private Site selectedSite;
+	private IOInterface myInterface; //reference to the IOInterface class
+	private Study importedStudy = null; //will reference the current study at hand
+	private ArrayList <Study> allStudies; // global list of studies collected
+	// Swing components
+	private JFrame frame;
+	private JTabbedPane tabpanel;
 	private JFileChooser chooser;
-	private JLabel header, fileNameLabel, siteId, statusField;
+	private JLabel studyNameLabel, studyIDLabel, header, fileNameLabel, siteId, statusLabel;
+	private JTextField siteIDField, studyNameField, studyIDField;
 	private JTextArea mainDisplay;
 	private JButton UploadButton, readButton, startButton, addButton, EndButton, viewButton, exportButton;
 	private JScrollPane scrollPane;
-	private JTabbedPane tabpanel;
 	
-	public ImportReadingPanel(JFrame frame, ArrayList<Site> list, JTabbedPane cp) {
+	public ImportReadingPanel(JFrame frame, ArrayList<Study> list, JTabbedPane cp) {
 		//initialize all the widgets
 		this.frame = frame;
-		siteList = list;
 		myInterface = new IOInterface();
+		allStudies = list;
 		tabpanel = cp;
+		initialize();
+	}
+		
+	private void initialize() {
+		
+		//local study variable for the current study
 		fileNameLabel = new JLabel();
-		fileNameLabel.setBounds(238, 56, 206, 21);
+		fileNameLabel.setForeground(new Color(0, 0, 128));
+		fileNameLabel.setBounds(148, 56, 206, 21);
 		mainDisplay = new JTextArea();
-		statusField = new JLabel();
-		statusField.setBounds(42, 199, 229, 21);
 		setFont(new Font("Tahoma", Font.PLAIN, 12));
 		setBorder(new TitledBorder ( new EtchedBorder (), "Import Reading"));
 		setLayout(null);
-				
-				
-		header = new JLabel("To start recording , choose a JSON file to be read...");
+		
+		header = new JLabel("To start recording , choose a file to be read...");
 		header.setBounds(148, 21, 314, 15);
 		header.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 12));
 		add(header);
 				
-		//Choose the file to be read(JSON)
-		UploadButton = new JButton("Upload JSON");
-		UploadButton.setBounds(35, 56, 83, 21);
+		//Choose the file to be read
+		UploadButton = new JButton("Upload File");
+		UploadButton.setBounds(40, 56, 83, 21);
 		UploadButton.setToolTipText("Navigate to the JSON file.");
 		UploadButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		UploadButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		UploadButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					JSONFile = chooseFile();
+					importedFile = chooseFile();
 					fileNameLabel.setText(getFileName());
 				}
 				catch(Exception e) {
@@ -87,25 +92,45 @@ public class ImportReadingPanel extends JPanel {
 		});
 		add(UploadButton);
 				
-		fileNameLabel.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		fileNameLabel.setFont(new Font("Tahoma", Font.ITALIC, 13));
+		fileNameLabel.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 14));
 		add(fileNameLabel);
 				
 				
 		//This functional button will call the ReadJson() with the input JSON as parameter
 		readButton = new JButton("Read File");
-		readButton.setBounds(35, 97, 83, 21);
+		readButton.setBounds(40, 103, 83, 21);
 		readButton.setToolTipText("Read the selected JSON file.");
 		readButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		readButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		readButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				//Call to the method to read the JSON
-				if(JSONFile != null) {
+				if(importedFile != null) {
 					try {
-						myInterface.ReadJson(JSONFile);
-						//mainDisplay the content of the input JSON
-						mainDisplay.setText(mainDisplay.getText() +"\n"+ myInterface.getReadings());
+						//extract the file extension
+						String extension = fileName.substring(fileName.lastIndexOf("."));
+						if(extension.equals(".json")) {
+							//parse JSON
+							myInterface.ReadJson(importedFile);
+							importedStudy = new Study();
+							//Display the content of the input JSON
+							mainDisplay.setText(mainDisplay.getText() +"\n"+ myInterface.getReadings());
+							readButton.transferFocus();
+						}else {
+							//parse XML file
+							myInterface.readXMLFile(importedFile);
+							
+							//set the study from that of the file
+							importedStudy = myInterface.getMyStudy();
+							studyNameField.setText(importedStudy.getStudyName());
+							
+							//set the study from that of the filed
+							studyIDField.setText(importedStudy.getStudyID());
+							
+							//Display the content of the XML file
+							mainDisplay.setText(myInterface.getReadings());
+							readButton.transferFocus();
+						}
 					}catch(Exception e) {
 						e.printStackTrace();
 						JOptionPane.showMessageDialog(frame, "Error Reading The File!");
@@ -118,15 +143,55 @@ public class ImportReadingPanel extends JPanel {
 		});
 		add(readButton);
 		
+		//Label and Field for a Study Name input
+		studyNameLabel = new JLabel("Study Name: ");
+		studyNameLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		studyNameLabel.setBounds(40, 145, 83, 17);
+		add(studyNameLabel);
+		
+		studyNameField = new JTextField();
+		studyNameField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Takes input from user for the creation of a study
+				importedStudy.setStudyName(studyNameField.getText());
+				studyNameField.transferFocus();
+			}
+		});
+		studyNameField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		studyNameField.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		studyNameField.setBounds(152, 144, 235, 20);
+		studyNameField.setColumns(10);
+		add(studyNameField);
+		
+		//Label and Field for a Study ID input
+		studyIDLabel = new JLabel("Study ID: ");
+		studyIDLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		studyIDLabel.setBounds(414, 145, 63, 17);
+		add(studyIDLabel);
+		
+		studyIDField = new JTextField();
+		studyIDField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Takes input from user for the creation of a study
+				importedStudy.setStudyID(studyIDField.getText());;
+				studyIDField.transferFocus();
+			}
+		});
+		studyIDField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		studyIDField.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		studyIDField.setBounds(487, 146, 68, 20);
+		studyIDField.setColumns(10);
+		add(studyIDField);
+		
 		//Label to indicate where to enter the site id
 		siteId = new JLabel("Site ID:");
-		siteId.setBounds(42, 141, 46, 15);
+		siteId.setBounds(40, 189, 53, 15);
 		siteId.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(siteId);
 				
 		//Text field that takes the site ID of selected site
 		siteIDField = new JTextField();
-		siteIDField.setBounds(238, 139, 86, 20);
+		siteIDField.setBounds(152, 187, 86, 20);
 		siteIDField.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		siteIDField.setColumns(10);
 		siteIDField.addActionListener(new ActionListener() {
@@ -135,19 +200,21 @@ public class ImportReadingPanel extends JPanel {
 				//create a new site which will contain the related readings and
 				//add it to the list of sites
 				selectedSite = new Site(siteID);
-				if(!siteList.contains(selectedSite)) {
-					siteList.add(selectedSite);						
+				importedStudy.addSiteToStudy(selectedSite);
+				if(!allStudies.contains(importedStudy)) {
+					allStudies.add(importedStudy);
 				}
+				
 				//mainDisplay the siteID to the user
 				siteIDField.setText("");
-				statusField.setText("locationID: "+siteID);
+				statusLabel.setText("Site ID: "+siteID);
 			}
 		});
 		add(siteIDField);
 				
 		//this functional button allow a site collection to start saving
 		startButton = new JButton("Start ");
-		startButton.setBounds(324, 199, 103, 21);
+		startButton.setBounds(397, 225, 68, 21);
 		startButton.setToolTipText("Start site collection.");
 		startButton.setBackground(UIManager.getColor("Button.background"));
 		startButton.setForeground(Color.BLACK);
@@ -155,22 +222,29 @@ public class ImportReadingPanel extends JPanel {
 		startButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				if(siteID != null) {
+				if(importedStudy.getStudyID() != null || importedStudy.getStudyName() != null) {
 					selectedSite.setRecording(true);
 					//Show the selected site and status in the text field
-					String info = "locationID: "+siteID +" is now Collecting.";
-					statusField.setText(info);
+					String info = "Site: "+siteID +" is now Collecting.";
+					statusLabel.setText(info);
 				}
 				else {
 					JOptionPane.showMessageDialog(frame, "Please Enter a site ID to start collecting!");
 				}
 			}
 		});
+		statusLabel = new JLabel();
+		statusLabel.setForeground(new Color(0, 0, 128));
+		statusLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		//Label to display whether the site is collecting or end collection
+		statusLabel.setBounds(42, 225, 272, 21);
+		add(statusLabel);
 		add(startButton);
 		
 		//This button toggle the site boolean recording to true or false		
 		EndButton = new JButton("End ");
-		EndButton.setBounds(452, 199, 103, 21);
+		EndButton.setBounds(492, 225, 63, 21);
 		EndButton.setToolTipText("End site collection");
 		EndButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		EndButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -181,8 +255,8 @@ public class ImportReadingPanel extends JPanel {
 					//This is where the call to the method to stop saving will go
 					selectedSite.setRecording(false);
 					//Show the selected site and status in the text field
-					String info = "locationID: "+siteID +" is no longer Collecting.";
-					statusField.setText(info);
+					String info = "Site: "+siteID +" is no longer Collecting.";
+					statusLabel.setText(info);
 				}
 				else {
 					JOptionPane.showMessageDialog(frame, "Please Enter a site ID to stop collecting from!");
@@ -190,10 +264,6 @@ public class ImportReadingPanel extends JPanel {
 			}
 		});
 		add(EndButton);
-				
-		//Label to display whether the site is collecting or end collection
-		statusField.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		add(statusField);
 				
 		//this Text area will contain the site reading 
 		mainDisplay.setEditable(false);
@@ -205,14 +275,14 @@ public class ImportReadingPanel extends JPanel {
 		add(scrollPane);
 				
 		//Add collection to a specified site
-		addButton = new JButton("Add Readings");
-		addButton.setBounds(42, 257, 95, 21);
+		addButton = new JButton("Add ");
+		addButton.setBounds(42, 257, 68, 21);
 		addButton.setToolTipText("Add Items to Site.");
 		addButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (siteID != null) {
 					//referenced the selected site matching the site ID
-					myInterface.getSiteReadings(siteID, selectedSite);
+					myInterface.setSiteReadings(siteID, selectedSite);
 				}
 				else {
 					JOptionPane.showMessageDialog(frame, "Please enter a site to add collection to!");
@@ -225,8 +295,8 @@ public class ImportReadingPanel extends JPanel {
 
 				
 		//View the site collections
-		viewButton = new JButton("View Reading");
-		viewButton.setBounds(238, 257, 103, 21);
+		viewButton = new JButton("View ");
+		viewButton.setBounds(152, 257, 68, 21);
 		viewButton.setToolTipText("Show Items for a Site.");
 		viewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -255,7 +325,7 @@ public class ImportReadingPanel extends JPanel {
 					if(outputFileName.equals("")) {
 						outputFileName = "SiteRecord";
 					}
-					myInterface.writeToFile(siteList, outputFileName);
+					myInterface.writeToFile(allStudies, outputFileName);
 					
 					//successful export Message is mainDisplayed on the screen
 					String message = String.format("%s has been written successfully! \n", outputFileName);
@@ -270,7 +340,8 @@ public class ImportReadingPanel extends JPanel {
 		exportButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, Color.DARK_GRAY, null));
 		add(exportButton);
 		
-		JButton writeReading = new JButton("Create Reading");
+		JButton writeReading = new JButton("Create ");
+		writeReading.setToolTipText("create a new reading");
 		writeReading.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				tabpanel.setSelectedIndex(1);
@@ -278,9 +349,8 @@ public class ImportReadingPanel extends JPanel {
 		});
 		writeReading.setFont(new Font("Tahoma", Font.BOLD, 12));
 		writeReading.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
-		writeReading.setBounds(443, 257, 112, 21);
+		writeReading.setBounds(264, 257, 68, 21);
 		add(writeReading);
-				
 	}
 			
 		/*
@@ -292,7 +362,7 @@ public class ImportReadingPanel extends JPanel {
         chooser = new JFileChooser(currentDir);
         
         //filter on files with .text extension
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(".JSON files", "json");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(".JSON & .XML files", "json", "xml");
         this.chooser.setFileFilter(filter);
         
         //open the file chooser dialog box

@@ -1,0 +1,33 @@
+[
+  {
+    "study_name": "University of Science Environmental Study",
+    "study_id": "485",
+    "site_readings": [
+      {
+        "site_readings": []
+      },
+      {
+        "site_readings": [
+          {
+            "site_id": "15566",
+            "reading_type": "Temperature",
+            "reading_id": "15dde",
+            "reading_value": 102.6,
+            "reading_date": 0
+          }
+        ]
+      },
+      {
+        "site_readings": [
+          {
+            "site_id": "15566",
+            "reading_type": "Humidity",
+            "reading_id": "52523",
+            "reading_value": 25.0,
+            "reading_date": 1552012844102
+          }
+        ]
+      }
+    ]
+  }
+]

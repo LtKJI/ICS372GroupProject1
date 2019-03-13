@@ -14,9 +14,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
@@ -27,30 +25,74 @@ public class CreateReadingPanel extends JPanel {
 	 * it takes input from the user in a form and create 
 	 * a reading which is added to a site
 	 */
-	@SuppressWarnings("unused")
-	private JFrame frame;
-	private ArrayList<Site> siteList;
-	private Item newItem;
-	private String siteID, readingType, readingID;
+	private ArrayList<Study> allStudies; //reference to the global list of studies
+	private Study newStudy;
+	private String studyName, studyID, siteID, readingType, readingUnit, readingID;
 	private double readingValue;
 	private long readingDate;
-	private JLabel siteidLabel, readingTypeLabel, readingIDLabel, readingValueLabel, readingDateLabel; 
-	private JTextField siteidField, readingTypeField, readingIDField, readingValueField, readingDateField;
-	private JButton submitButton;
+	//Swing components
+	private JFrame frame;
 	private JTabbedPane tabpanel;
+	private JLabel studyNameLabel, studyIDLabel, siteidLabel, readingTypeLabel, readingUnitLabel, readingIDLabel, readingValueLabel; 
+	private JTextField studyNameField, studyIDField, siteidField, readingTypeField, readingUnitField, readingIDField, readingValueField;
+	private JButton submitButton;
+
 	/*
 	 * FormPanel constructor that create the components for this panel
 	 */
-	public CreateReadingPanel (JFrame frame, ArrayList<Site> list, JTabbedPane tp) {
+	public CreateReadingPanel (JFrame frame, ArrayList<Study> list, JTabbedPane tp) {
 		this.frame = frame;
 		tabpanel = tp;
-		siteList = list;
+		allStudies = list;
+		initialized();
+	}
+	
+	public void initialized() {
+		
 		setBorder(new TitledBorder ( new EtchedBorder (), "Add Reading"));
 		setLayout(null);
 		
+		//study name 
+		studyNameLabel = new JLabel("Study Name: ");
+		studyNameLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		studyNameLabel.setBounds(53, 69, 94, 22);
+		add(studyNameLabel);
+		
+		studyNameField = new JTextField();
+		studyNameField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				studyName = studyNameField.getText();
+				studyNameField.transferFocus();
+			}
+		});
+		studyNameField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		studyNameField.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		studyNameField.setBounds(222, 68, 301, 23);
+		studyNameField.setColumns(10);
+		add(studyNameField);
+		
+		//study id 
+		studyIDLabel = new JLabel("Study ID: ");
+		studyIDLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		studyIDLabel.setBounds(53, 110, 79, 21);
+		add(studyIDLabel);
+		
+		studyIDField = new JTextField();
+		studyIDField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				studyID = studyIDField.getText();
+				studyIDField.transferFocus();
+			}
+		});
+		studyIDField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		studyIDField.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		studyIDField.setBounds(222, 109, 105, 23);
+		studyIDField.setColumns(10);
+		add(studyIDField);
+		
 		//Site ID
 		siteidLabel = new JLabel("Site ID: ");
-		siteidLabel.setBounds(51, 43, 79, 23);
+		siteidLabel.setBounds(53, 153, 79, 23);
 		siteidLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(siteidLabel);
 		
@@ -61,14 +103,14 @@ public class CreateReadingPanel extends JPanel {
 				siteidField.transferFocus();
 			}
 		});
-		siteidField.setBounds(222, 44, 197, 22);
+		siteidField.setBounds(222, 154, 105, 22);
 		siteidField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		siteidField.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		add(siteidField);
 		
 		//Reading Type
 		readingTypeLabel = new JLabel("Reading Type: ");
-		readingTypeLabel.setBounds(51, 95, 94, 23);
+		readingTypeLabel.setBounds(53, 198, 94, 23);
 		readingTypeLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(readingTypeLabel);
 		
@@ -79,15 +121,34 @@ public class CreateReadingPanel extends JPanel {
 				readingTypeField.transferFocus();
 			}
 		});
-		readingTypeField.setBounds(222, 95, 197, 23);
+		readingTypeField.setBounds(222, 198, 226, 23);
 		readingTypeField.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		readingTypeField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		readingTypeField.setColumns(10);
 		add(readingTypeField);
 		
+		//Reading unit
+		readingUnitLabel = new JLabel("Reading Unit: ");
+		readingUnitLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		readingUnitLabel.setBounds(53, 243, 94, 22);
+		add(readingUnitLabel);
+		
+		readingUnitField = new JTextField();
+		readingUnitField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				readingUnit = readingUnitField.getText();
+				readingUnitField.transferFocus();
+			}
+		});
+		readingUnitField.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		readingUnitField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		readingUnitField.setBounds(222, 244, 226, 22);
+		readingUnitField.setColumns(10);
+		add(readingUnitField);
+		
 		//Reading ID
 		readingIDLabel = new JLabel("Reading ID: ");
-		readingIDLabel.setBounds(51, 152, 94, 23);
+		readingIDLabel.setBounds(53, 286, 94, 23);
 		readingIDLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(readingIDLabel);
 		
@@ -98,7 +159,7 @@ public class CreateReadingPanel extends JPanel {
 				readingIDField.transferFocus();
 			}
 		});
-		readingIDField.setBounds(222, 153, 197, 22);
+		readingIDField.setBounds(222, 287, 105, 22);
 		readingIDField.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		readingIDField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		readingIDField.setColumns(10);
@@ -106,7 +167,7 @@ public class CreateReadingPanel extends JPanel {
 		
 		//Reading Value
 		readingValueLabel = new JLabel("Reading Value: ");
-		readingValueLabel.setBounds(51, 204, 105, 23);
+		readingValueLabel.setBounds(53, 330, 105, 23);
 		readingValueLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(readingValueLabel);
 		
@@ -117,69 +178,69 @@ public class CreateReadingPanel extends JPanel {
 				readingValueField.transferFocus();
 			}
 		});
-		readingValueField.setBounds(222, 205, 197, 21);
+		readingValueField.setBounds(222, 331, 105, 21);
 		readingValueField.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		readingValueField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		readingValueField.setColumns(10);
 		add(readingValueField);
 		
-//		//Reading Date
-//		readingDateLabel = new JLabel("Reading Date:");
-//		readingDateLabel.setBounds(51, 255, 99, 23);
-//		readingDateLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-//		add(readingDateLabel);
-//		
-//		readingDateField = new JTextField();
-//		readingDateField.setToolTipText("Enter MM/DD/YYYY or Enter key for today's date");
-//		readingDateField.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				if(readingDateField.getText().equals("") || readingDateField == null) {
-//				}else {
-//					String inputDate = readingDateField.getText()
-//				}
-////				readingDate = Long.parseLong(readingDateField.getText());
-////				date.setTime(time);
-//			}
-//		});
-//		readingDateField.setBounds(222, 256, 197, 21);
-//		readingDateField.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-//		readingDateField.setFont(new Font("Tahoma", Font.PLAIN, 12));
-//		readingDateField.setColumns(10);
-//		add(readingDateField);
-		
 		//Submit Button
 		submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Date date = new Date();
-				readingDate = date.getTime();
-				newItem = new Item(siteID, readingType, readingID, readingValue, readingDate);
-				//iterate over the collection of site and find a match for created item
-				Iterator<Site> iterate = siteList.iterator();
-				while(iterate.hasNext()) {
-					Site current = iterate.next();
-					if(current.getSiteID().equals(siteID)) {
-						if(current.isRecording()) {
-							current.addItem(newItem);
-							JOptionPane.showMessageDialog(frame, "reading for site "+siteID+" has been created!");
-						}else {
-							JOptionPane.showMessageDialog(frame, "Site is not collecting!");
+
+				if (!allStudies.isEmpty()) {
+					//check for existing study, if not, create one!
+					boolean found = false;
+					for (Study st : allStudies) {
+						if (st.getStudyID().equals(studyID) && st.getStudyName().equals(studyName)) {
+							newStudy = st;
+							found = true;
+							break;
 						}
 					}
+					if (!found) {
+						newStudy = new Study(studyID, studyName);
+						allStudies.add(newStudy);
+					} 
+				} else {
+					newStudy = new Study(studyID, studyName);
+					allStudies.add(newStudy);
 				}
+				//Instantiate a new site that will contain the item created
+				Site newSite = new Site(siteID);
+				//for testing purpose
+				newSite.setRecording(true);
+				if(newSite.isRecording()) {
+					Date date = new Date();
+					readingDate = date.getTime();
+					//Add new item to site
+					newSite.addItem(new Item(siteID, readingType, readingUnit, readingID, readingValue, readingDate));
+					newStudy.addSiteToStudy(newSite);
+					JOptionPane.showMessageDialog(frame, "New study has been created!");
+//					System.out.println(allStudies.toString());
+				}else {
+					JOptionPane.showMessageDialog(frame, "Site is not collecting!");
+				}
+				
+				//reset all fields 
+				studyNameField.setText("");
+				studyIDField.setText("");
 				siteidField.setText("");
 				readingTypeField.setText("");
+				readingUnitField.setText("");
 				readingIDField.setText("");
 				readingValueField.setText("");
 			}
 		});
-		submitButton.setBounds(270, 308, 105, 31);
+		submitButton.setBounds(222, 386, 105, 31);
 		submitButton.setToolTipText("submit the input ");
 		submitButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		submitButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(submitButton);
 		
 		JButton returnToImport = new JButton("Return");
+		returnToImport.setToolTipText("return to import tab");
 		returnToImport.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				tabpanel.setSelectedIndex(0);
@@ -187,7 +248,7 @@ public class CreateReadingPanel extends JPanel {
 		});
 		returnToImport.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		returnToImport.setFont(new Font("Tahoma", Font.BOLD, 12));
-		returnToImport.setBounds(456, 367, 94, 28);
+		returnToImport.setBounds(453, 417, 94, 28);
 		add(returnToImport);
 	}
 }

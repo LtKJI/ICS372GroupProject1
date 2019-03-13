@@ -1,0 +1,18 @@
+<ReadingSet>
+	<Study id="485">University of Science Environmental Study</Study>
+	<Reading type="Temperature" id="15dde">
+		<Value unit="Fahrenheit">102.6</Value>
+		<Site>15566</Site>
+	</Reading>
+	<Reading type="Humidity" id="52523">
+		<Value>73</Value>
+	</Reading>
+	<Reading type="Pressure" id="151e5dde">
+		<Value>802</Value>
+		<Site>6</Site>
+	</Reading>
+	<Reading type="Particulate" id="ern222">
+		<Value unit="ppm">291</Value>
+		<Site>85545</Site>
+	</Reading>
+</ReadingSet>

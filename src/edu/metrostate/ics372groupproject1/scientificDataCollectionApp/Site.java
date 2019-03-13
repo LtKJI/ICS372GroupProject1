@@ -40,8 +40,8 @@ public class Site {
 		return items;
 	}
 
-	public void setRecording(boolean t) {
-		this.recording = t;
+	public void setRecording(boolean bool) {
+		this.recording = bool;
 	}
 	
 	public void setItems(ArrayList<Item> items) {
@@ -49,7 +49,7 @@ public class Site {
 	}
 	
 	public void addItem(Item i) {
-		if(!readingIDs.contains(i.getReadingID())) {
+		if(!readingIDs.contains(i.getReadingID()) && recording) {
 			this.items.add(i);
 			this.readingIDs.add(i.getReadingID());
 		}
@@ -60,10 +60,11 @@ public class Site {
 	}
 	
 	public String toString() {
-		String text = "";
+		String text = "\nStudy_sites: [\n";
 		for(Item i : items) {
-			text += i.toString() + "\n\n";
+			text += i.toString() + "\n";
 		}
+		text += "]";
 		return text;
 	}
 
