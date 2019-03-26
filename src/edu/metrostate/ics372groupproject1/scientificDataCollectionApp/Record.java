@@ -18,7 +18,7 @@ public class Record {
 	private static Record  recordSelf = null;
 	@SerializedName("Record")
 	@Expose
-	private static List<Study> studyList = new ArrayList<Study>();
+	private static List<Study> studyList = null;
 	
 	private Record() {}
 	//Singleton instance method
@@ -27,6 +27,7 @@ public class Record {
 			synchronized (LOCK) {
 				if(recordSelf == null) {
 					recordSelf = new Record();
+					studyList = new ArrayList<Study>();
 				}
 			}
 		}
@@ -106,6 +107,18 @@ public class Record {
 	//Returns the element at the specified position in this list.
 	public Study get(int index) {
 		return studyList.get(index);
+	}
+	
+	//Return a study the match the input parameters
+	public Study getStudy(String Id, String name) {
+		Study temp = null;
+		for(Study s : studyList) {
+			if(s.getStudyID().equals(Id) && s.getStudyName().equals(name)) {
+				temp = s;
+				break;
+			}
+		}
+		return temp;
 	}
 
 	/**

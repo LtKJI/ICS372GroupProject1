@@ -71,18 +71,18 @@ public class GraphicalUserInterface {
 	}
 	
 	//Launch the application.
-		public static void main(String[] args) {
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						GraphicalUserInterface window = new GraphicalUserInterface();
-						window.frame.setVisible(true);
-						window.frame.setPreferredSize(new Dimension(625, 760));
-						window.frame.pack();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GraphicalUserInterface window = new GraphicalUserInterface();
+					window.frame.setVisible(true);
+					window.frame.setPreferredSize(new Dimension(625, 760));
+					window.frame.pack();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			});
-		}
+			}
+		});
+	}
 }

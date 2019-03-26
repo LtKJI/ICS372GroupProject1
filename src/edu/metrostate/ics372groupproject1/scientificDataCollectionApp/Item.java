@@ -108,12 +108,12 @@ public class Item {
 		if(object instanceof Item) {
 			nitem = (Item)object;
 		}
-		final boolean EQUAL_SITE_ID = this.siteID.equals(nitem.getSiteID());
-		final boolean EQUAL_READING_TYPE = this.readingType.equals(nitem.getReadingType());
-		final boolean EQUAL_READING_ID = this.readingID.equals(nitem.getReadingID());
-		final boolean EQUAL_READING_VALUE = this.readingValue == nitem.getReadingValue();
+		boolean equalSiteID = this.siteID.equals(nitem.getSiteID());
+		boolean equalReadingType = this.readingType.equals(nitem.getReadingType());
+		boolean equalReadingID = this.readingID.equals(nitem.getReadingID());
+		boolean equalReadingValue = this.readingValue == nitem.getReadingValue();
 		//return true if equal and false other wise
-		return EQUAL_SITE_ID && EQUAL_READING_TYPE && EQUAL_READING_ID && EQUAL_READING_VALUE;
+		return equalSiteID && equalReadingType && equalReadingID && equalReadingValue;
 	}
 	
 	//To string method

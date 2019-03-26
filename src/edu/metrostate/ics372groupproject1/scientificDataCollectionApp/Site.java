@@ -1,9 +1,6 @@
 package edu.metrostate.ics372groupproject1.scientificDataCollectionApp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -14,8 +11,8 @@ public class Site {
 	//Creating collection class to store objects read from JSON file.
 	@SerializedName("site_readings")
 	@Expose
-	private Map<String, Item> items = new HashMap<String, Item>();
-
+	private ArrayList<Item> allItems = new ArrayList<>();
+	
 	public Site() {
 		recording = false;
 	}
@@ -33,7 +30,6 @@ public class Site {
 	}
 
 	public ArrayList<Item> getItems() {
-		ArrayList<Item> allItems = new ArrayList<Item>(items.values());
 		return allItems;
 	}
 
@@ -43,7 +39,9 @@ public class Site {
 	
 	public void setItems(ArrayList<Item> items) {
 		for(Item i : items) {
-			this.items.put(i.getReadingID(), i);
+			if (i.getReadingID() == this.siteID) {
+				allItems.add(i);
+			}
 		}
 	}
 	
@@ -55,10 +53,10 @@ public class Site {
 	 * return true if the new item is added to site
 	 */
 	public boolean addItem(Item i) {
-		if(!items.containsKey(i.getReadingID()) && recording) {
-			this.items.put(i.getReadingID(), i);
+		if(!allItems.contains(i) && recording) {
+			allItems.add(i);
 		}
-		return this.items.containsKey(i.getReadingID());
+		return allItems.contains(i);
 	}
 	
 	/**
@@ -72,9 +70,9 @@ public class Site {
 		boolean result = false;
 		if(this.recording) {
 			for(Item item : readings.getReadings()) {
-				if(item.getSiteID() != null && item.getSiteID().equals(this.siteID)) {
-					this.items.put(item.getReadingID(), item);
-					result = this.items.containsKey(item.getReadingID());
+				if(item.getSiteID() != null && item.getSiteID().equals(this.siteID) && !this.allItems.contains(item)) {
+					allItems.add(item);
+					result = allItems.contains(item);
 				}
 			}
 		}
@@ -110,10 +108,14 @@ public class Site {
 	//to string method 
 	public String toString() {
 		String text = "";
-		for(Item i : items.values()) {
+		for(Item i: allItems) {
 			text += i.toString() + "\n\r";
 		}
 		return text;
 	}
-
+	
+	//return true is the site has not readings
+	public boolean isEmpty() {
+		return allItems.isEmpty();
+	}
 }

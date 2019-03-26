@@ -136,6 +136,8 @@ public class ImportReadingPanel extends JPanel {
 					importedStudy = null;
 					importedFile = chooseFile();
 					fileNameLabel.setText(getFileName());
+					siteID = null;
+					statusLabel.setText("");
 					studyNameField.requestFocus();
 				}
 				catch(Exception e) {
@@ -160,13 +162,11 @@ public class ImportReadingPanel extends JPanel {
 							//parse JSON
 							readings = JSONFile.readJSON(importedFile);
 							if (StudyName != null && StudyID != null && !StudyID.equals("")) {
-								importedStudy = new Study(StudyID, StudyName);
-								/**
-								 * Check if record contains imported study
-								 * if so return it 
-								 */
-								if (records.contains(importedStudy)) {
-									importedStudy = getStudyFromRecord(importedStudy);
+								//find study in record if it exist in record
+								importedStudy = records.getStudy(StudyID, StudyName);
+								//Check if imported study is null if not create new
+								if (importedStudy == null) {
+									importedStudy = new Study(StudyID, StudyName);
 								}
 								//Add empty sites to study
 								importedStudy.setSiteForReading(readings);
@@ -187,7 +187,8 @@ public class ImportReadingPanel extends JPanel {
 							//set the study from the imported file
 							importedStudy = xmlFile.getStudy();
 							if (records.contains(importedStudy)) {
-								importedStudy = getStudyFromRecord(importedStudy);
+								importedStudy = records.getStudy(importedStudy.getStudyID(),
+										importedStudy.getStudyName());
 							}
 							//Add empty sites to study
 							importedStudy.setSiteForReading(readings);
@@ -242,24 +243,25 @@ public class ImportReadingPanel extends JPanel {
 						siteIDField.requestFocus();
 					}else {
 						selectedSite = importedStudy.getSiteByID(siteID);
-					}
 					
-					/**
-					 * Add the study to the records if it is not already
-					 * in record
-					 */
-					if (!records.contains(importedStudy)) {
-						records.addStudy(importedStudy);
-					}
-					//mainDisplay the siteID to the user
-					siteIDField.setText("");
-					if(selectedSite.isRecording()) {
-						statusLabel.setText("Site ID: " + selectedSite.getSiteID() + " is collecting.");
-					}else {
-						statusLabel.setText("Site ID: " + selectedSite.getSiteID() + " is NOT collecting.");
+						/**
+						 * Add the study to the records if it is not already
+						 * in record
+						 */
+						if (!records.contains(importedStudy)) {
+							records.addStudy(importedStudy);
+						}
+						//mainDisplay the siteID to the user
+						if(selectedSite.isRecording()) {
+							statusLabel.setText("Site ID: " + selectedSite.getSiteID() + " is collecting.");
+						}else {
+							statusLabel.setText("Site ID: " + selectedSite.getSiteID() + " is NOT collecting.");
+						}
 					}
 				}else {
 					JOptionPane.showMessageDialog(frame, "Please select a study first");
+					siteIDField.setText("");
+					studyNameField.requestFocus();
 				}
 				siteIDField.setText("");
 			}
@@ -283,27 +285,18 @@ public class ImportReadingPanel extends JPanel {
 		startButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-					if (siteID != null) {
-						if(importedStudy.getAllSite().contains(selectedSite)) {
-						if (importedStudy.getAllSite().contains(selectedSite)) {
-							selectedSite.setRecording(true);
-							//Add readings to matching site in study
-							selectedSite.addReadings(readings);
-							//Show the selected site and status in the text field
-							String info = "Site: "+ selectedSite.getSiteID() +" is now Collecting.";
-							statusLabel.setText(info);
-						} else {
-							JOptionPane.showMessageDialog(frame, "Please enter a site to add collection to!");
-						}
-					}else {
-						int type = JOptionPane.ERROR_MESSAGE;
-						String message = "No Site ID provided!";
-						JOptionPane.showMessageDialog(frame, message, "Error", type);
-						siteIDField.requestFocus();
-					}
-				}
-				else {
-					JOptionPane.showMessageDialog(frame, "Please Enter a site ID to start collecting!");
+				if (siteID != null) {
+						selectedSite.setRecording(true);
+						//Add readings to matching site in study
+						selectedSite.addReadings(readings);
+						//Show the selected site and status in the text field
+						String info = "Site: "+ selectedSite.getSiteID() +" is now Collecting.";
+						statusLabel.setText(info);
+				}else {
+					int type = JOptionPane.WARNING_MESSAGE;
+					String message = "No Site ID provided!";
+					JOptionPane.showMessageDialog(frame, message, "Warning", type);
+					siteIDField.requestFocus();
 				}
 			}
 		});
@@ -319,15 +312,13 @@ public class ImportReadingPanel extends JPanel {
 		EndButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (siteID != null) {
-					if (importedStudy.getAllSite().contains(selectedSite)) {
-						//This is where the call to the method to stop saving will go
-						selectedSite.setRecording(false);
-						//Show the selected site and status in the text field
-						String info = "Site: " + siteID + " is no longer Collecting.";
-						statusLabel.setText(info);
-					} else {
-						JOptionPane.showMessageDialog(frame, "Please Enter a site ID to stop collecting from!");
-					}
+					//This is where the call to the method to stop saving will go
+					selectedSite.setRecording(false);
+					//Show the selected site and status in the text field
+					String info = "Site: " + siteID + " is no longer Collecting.";
+					statusLabel.setText(info);
+				} else {
+					JOptionPane.showMessageDialog(frame, "Please Enter a site ID to stop collecting from!");
 				}
 			}
 		});
@@ -339,15 +330,19 @@ public class ImportReadingPanel extends JPanel {
 		addButton.setToolTipText("Add Items to Site.");
 		addButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				if (importedStudy != null && siteID != null) {
-					//create new reading for site  
-					Item reading  = addItemFactory(frame);
-					if(reading != null) {
-						if(selectedSite.addItem(reading)) {
-							JOptionPane.showMessageDialog(frame, "Reading added to site #"+ siteID);
-						}else {
-							JOptionPane.showMessageDialog(frame, "No reading added!");
-						}
+				if (importedStudy != null) {
+					if (siteID != null) {
+						//create new reading for site  
+						Item reading = addItemFactory(frame);
+						if (reading != null) {
+							if (selectedSite.addItem(reading)) {
+								JOptionPane.showMessageDialog(frame, "Reading added to site #" + siteID);
+							} else {
+								JOptionPane.showMessageDialog(frame, "No reading added!");
+							}
+						} 
+					}else {
+						JOptionPane.showMessageDialog(frame, "Please Enter SiteID first");
 					}
 				}else {
 					JOptionPane.showMessageDialog(frame, "Please select a study first");
@@ -405,7 +400,6 @@ public class ImportReadingPanel extends JPanel {
 		exportButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		exportButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, Color.DARK_GRAY, null));
 		add(exportButton);
-		
 	}
 			
 	/**

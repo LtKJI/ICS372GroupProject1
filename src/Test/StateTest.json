@@ -1,0 +1,33 @@
+[
+    {
+        "study_name": "University of Science Environmental Study",
+        "study_id": "485",
+        "sites": [
+            {
+                "site_readings": [
+                    {
+                        "site_id": "6",
+                        "reading_type": "Pressure",
+                        "reading_id": "151e5dde",
+                        "reading_value": 802,
+                        "reading_unit": "Bar",
+                        "reading_date": 1553609869618
+                    }
+                ]
+            }
+            ,
+            {
+                "site_readings": [
+                    {
+                        "site_id": "85545",
+                        "reading_type": "Particulate",
+                        "reading_id": "ern222",
+                        "reading_value": 291,
+                        "reading_unit": "ppm",
+                        "reading_date": 1553609922977
+                    }
+                ]
+            }
+        ]
+    }
+]

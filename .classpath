@@ -7,6 +7,7 @@
 	</classpathentry>
 	<classpathentry kind="src" output="target/classes" path="src">
 		<attributes>
+			<attribute name="test" value="true"/>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
@@ -17,5 +18,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/JUnit4/junit-4.13-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/kekel/.m2/repository/org/mockito/mockito-core/2.25.1/mockito-core-2.25.1.jar" sourcepath="C:/Users/kekel/.m2/repository/org/mockito/mockito-core/2.25.1/mockito-core-2.25.1-sources.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.mockito"/>
+			<attribute name="maven.artifactId" value="mockito-core"/>
+			<attribute name="maven.version" value="2.25.1"/>
+			<attribute name="maven.scope" value="test"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
