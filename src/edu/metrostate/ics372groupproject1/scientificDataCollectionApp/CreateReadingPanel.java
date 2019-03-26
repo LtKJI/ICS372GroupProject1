@@ -13,7 +13,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Date;
 import java.awt.event.ActionEvent;
 
@@ -25,7 +24,7 @@ public class CreateReadingPanel extends JPanel {
 	 * it takes input from the user in a form and create 
 	 * a reading which is added to a site
 	 */
-	private ArrayList<Study> allStudies; //reference to the global list of studies
+	private Record records; //reference to the global list of studies
 	private Study newStudy;
 	private String studyName, studyID, siteID, readingType, readingUnit, readingID;
 	private double readingValue;
@@ -35,15 +34,15 @@ public class CreateReadingPanel extends JPanel {
 	private JTabbedPane tabpanel;
 	private JLabel studyNameLabel, studyIDLabel, siteidLabel, readingTypeLabel, readingUnitLabel, readingIDLabel, readingValueLabel; 
 	private JTextField studyNameField, studyIDField, siteidField, readingTypeField, readingUnitField, readingIDField, readingValueField;
-	private JButton submitButton;
+	private JButton submitButton, cancel;
 
 	/*
 	 * FormPanel constructor that create the components for this panel
 	 */
-	public CreateReadingPanel (JFrame frame, ArrayList<Study> list, JTabbedPane tp) {
+	public CreateReadingPanel (JFrame frame, Record studyRecord, JTabbedPane tp) {
 		this.frame = frame;
 		tabpanel = tp;
-		allStudies = list;
+		records = studyRecord;
 		initialized();
 	}
 	
@@ -174,8 +173,12 @@ public class CreateReadingPanel extends JPanel {
 		readingValueField = new JTextField();
 		readingValueField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				readingValue = Double.parseDouble(readingValueField.getText());
-				readingValueField.transferFocus();
+				try {
+					readingValue = Double.parseDouble(readingValueField.getText());
+					readingValueField.transferFocus();
+				} catch (NumberFormatException exception) {
+					JOptionPane.showMessageDialog(frame, exception.getMessage());
+				}
 			}
 		});
 		readingValueField.setBounds(222, 331, 105, 21);
@@ -188,67 +191,92 @@ public class CreateReadingPanel extends JPanel {
 		submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				if (!allStudies.isEmpty()) {
-					//check for existing study, if not, create one!
-					boolean found = false;
-					for (Study st : allStudies) {
-						if (st.getStudyID().equals(studyID) && st.getStudyName().equals(studyName)) {
-							newStudy = st;
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
+				final String MESSAGE = "Success!\nAdd another reading?";
+				final int TYPE = JOptionPane.YES_NO_OPTION;
+				int response;// NO = 1 and YES = 0;
+				if (studyID != null && !studyID.equals("") && studyName != null && !studyName.equals("")) {
+					Study temp = Record.findByAttributes(studyName, studyID);
+					if( temp != null) {
+						//study has been found in record
+						newStudy = temp;
+					}else {
+						//study not found in record
 						newStudy = new Study(studyID, studyName);
-						allStudies.add(newStudy);
-					} 
+						records.addStudy(newStudy);
+					}
+
+					//validate site ID before a site
+					if (siteID != null && !siteID.equals("")) {
+						//Instantiate a new site that will contain the item created
+						Site newSite = new Site(siteID);
+						//for testing purpose
+						newSite.setRecording(true);
+						Date date = new Date();
+						readingDate = date.getTime();
+						//Add new item to site
+						newSite.addItem(
+								new Item(siteID, readingType, readingUnit, readingID, readingValue, readingDate));
+						newStudy.addSite(newSite);
+						response = JOptionPane.showConfirmDialog(frame, MESSAGE, "Success", TYPE);
+						if(response == 0){
+							//reset all site fields 
+							resetSite();
+						}else {
+							//reset all fields 
+							resetAll();
+						}
+					} else {
+						JOptionPane.showMessageDialog(frame, "Must have a site ID!", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						siteidField.requestFocus();
+					}
 				} else {
-					newStudy = new Study(studyID, studyName);
-					allStudies.add(newStudy);
-				}
-				//Instantiate a new site that will contain the item created
-				Site newSite = new Site(siteID);
-				//for testing purpose
-				newSite.setRecording(true);
-				if(newSite.isRecording()) {
-					Date date = new Date();
-					readingDate = date.getTime();
-					//Add new item to site
-					newSite.addItem(new Item(siteID, readingType, readingUnit, readingID, readingValue, readingDate));
-					newStudy.addSiteToStudy(newSite);
-					JOptionPane.showMessageDialog(frame, "New study has been created!");
-//					System.out.println(allStudies.toString());
-				}else {
-					JOptionPane.showMessageDialog(frame, "Site is not collecting!");
-				}
-				
-				//reset all fields 
-				studyNameField.setText("");
-				studyIDField.setText("");
-				siteidField.setText("");
-				readingTypeField.setText("");
-				readingUnitField.setText("");
-				readingIDField.setText("");
-				readingValueField.setText("");
+					JOptionPane.showMessageDialog(frame, "Please Provide a study name and ID!");
+					studyNameField.requestFocus();
+				} 
 			}
 		});
-		submitButton.setBounds(222, 386, 105, 31);
+		submitButton.setBounds(222, 398, 105, 31);
 		submitButton.setToolTipText("submit the input ");
 		submitButton.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		submitButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 		add(submitButton);
 		
-		JButton returnToImport = new JButton("Return");
-		returnToImport.setToolTipText("return to import tab");
-		returnToImport.addActionListener(new ActionListener() {
+		cancel = new JButton("Cancel");
+		cancel.setToolTipText("return to import tab");
+		cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				tabpanel.setSelectedIndex(0);
 			}
 		});
-		returnToImport.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
-		returnToImport.setFont(new Font("Tahoma", Font.BOLD, 12));
-		returnToImport.setBounds(453, 417, 94, 28);
-		add(returnToImport);
+		cancel.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		cancel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		cancel.setBounds(387, 398, 94, 31);
+		add(cancel);
+	}
+	
+	//reset all field relating to site
+	private void resetSite() {
+		siteID = "";
+		siteidField.setText("");
+		readingTypeField.setText("");
+		readingUnitField.setText("");
+		readingIDField.setText("");
+		readingValueField.setText("");
+		siteidField.requestFocus();
+	}
+	//reset all the fields in create panel
+	private void resetAll() {
+		studyID = "";
+		studyName = "";
+		siteID = "";
+		studyNameField.setText("");
+		studyIDField.setText("");
+		siteidField.setText("");
+		readingTypeField.setText("");
+		readingUnitField.setText("");
+		readingIDField.setText("");
+		readingValueField.setText("");
+		studyNameField.requestFocus();
 	}
 }

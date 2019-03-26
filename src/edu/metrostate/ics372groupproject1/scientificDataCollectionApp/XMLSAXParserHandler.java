@@ -1,10 +1,17 @@
 package edu.metrostate.ics372groupproject1.scientificDataCollectionApp;
 
+
 import java.util.ArrayList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * A class to parse XML document.
+ * This class extends DefaultHandler which provides default implementation
+ * of ContentHandler that contains callback methods that receive notification
+ * when an even occurs such as StartDocument, EndDocument etc.
+ */
 
 
 public class XMLSAXParserHandler extends DefaultHandler {
@@ -13,16 +20,26 @@ public class XMLSAXParserHandler extends DefaultHandler {
 	private ArrayList<Item> itemList=null;
 	private Item item=null;
 	private Study study=null;
-	private StringBuilder stringBuilder=null; //data
+	private StringBuilder stringBuilder=null;
 	
-	//getter method for itemList
+	
+	/**
+	 * getter method for itemList
+	 * @return itemList
+	 */
 	public ArrayList<Item> getItemList(){
 		return itemList;
 	}
+	
+	/**
+	 * getter method for study
+	 * @return study object
+	 */
 	public Study getStudy() {
 		return study;
 	}
 	
+	//boolean variables to set Item and Study variables
 	boolean bStudyID=false;
 	boolean bStudyName=false;
 	boolean bReadingType=false;
@@ -31,16 +48,17 @@ public class XMLSAXParserHandler extends DefaultHandler {
 	boolean bSiteID=false;
 	boolean bReadingUnit=false;
 	
+	/**
+	 * Method called at the start of a document element
+	 */
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException{
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException{		
 		if(qName.equalsIgnoreCase("Study")) {
 			String id=attributes.getValue("id");			
 			//initialize Study object and set ID attribute
 			study=new Study();
 			study.setStudyID(id);
-			bStudyName=true;
-			
-			
+			bStudyName=true;			
 		}
 		else if(qName.equalsIgnoreCase("Reading")) {
 			String type=attributes.getValue("type");
@@ -70,6 +88,10 @@ public class XMLSAXParserHandler extends DefaultHandler {
 		stringBuilder=new StringBuilder();
 	}
 	
+	
+	/**
+	 * Method called at the end of a document element
+	 */	
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException{
 		if(bStudyName) {
@@ -90,6 +112,11 @@ public class XMLSAXParserHandler extends DefaultHandler {
 		}
 	}
 	
+	
+	/**
+	 * Method called with the text contents in between the start and end 
+	 * tags of an XML document element.
+	 */
 	@Override
 	public void characters(char ch[], int start, int length) throws SAXException {
 		stringBuilder.append(new String(ch, start, length));

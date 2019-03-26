@@ -1,0 +1,11 @@
+{
+"site_readings":[
+      {
+         "site_id":"12513",
+	  "reading_type":"humidity",
+         "reading_id":"48934j",
+	  "reading_value": 84,
+	  "reading_date": 1515354694451
+      }
+    ]
+}

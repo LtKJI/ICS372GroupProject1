@@ -1,7 +1,18 @@
 package edu.metrostate.ics372groupproject1.scientificDataCollectionApp;
 
+
+import java.util.Date;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+/**
+ * @param
+ * Item class represent the reading object of the site
+ * It keeps track of the attributes relating to a particular 
+ * reading at a specified site.
+ *
+ */
 
 public class Item {	
 	@SerializedName("site_id")
@@ -20,11 +31,16 @@ public class Item {
 	@Expose
 	private double readingValue;
 	
+	@SerializedName("reading_unit")
+	@Expose
+	private String unit = "";
+	
 	@SerializedName("reading_date")
 	@Expose
 	private long readingDate;
-	private String unit;
 	
+	
+	//The constructors of the Item class
 	public Item() {
 		
 	}
@@ -86,11 +102,55 @@ public class Item {
 		this.unit = unit;
 	}
 	
-	//To string method
-		public String toString() {
-			return "item : {\nSite_id = " + siteID + "\nreading_type = " + readingType + 
-					"\nreading_id = " + readingID + "\nreading_value = " + readingValue + 
-					"\nreading_unit = "+ unit + "\nreading_date = " + readingDate +
-					"\n}";
+	//defining equality among items
+	public boolean equals(Object object) {
+		Item nitem = null;
+		if(object instanceof Item) {
+			nitem = (Item)object;
 		}
+		final boolean EQUAL_SITE_ID = this.siteID.equals(nitem.getSiteID());
+		final boolean EQUAL_READING_TYPE = this.readingType.equals(nitem.getReadingType());
+		final boolean EQUAL_READING_ID = this.readingID.equals(nitem.getReadingID());
+		final boolean EQUAL_READING_VALUE = this.readingValue == nitem.getReadingValue();
+		//return true if equal and false other wise
+		return EQUAL_SITE_ID && EQUAL_READING_TYPE && EQUAL_READING_ID && EQUAL_READING_VALUE;
+	}
+	
+	//To string method
+	public String toString() {
+		return "{\nSite_id = " + siteID + "\nreading_type = " + readingType + 
+				"\nreading_id = " + readingID + "\nreading_value = " + readingValue + 
+				"\nreading_unit = "+ unit + "\nreading_date = " + readingDate +
+				"\n\r}";
+	}
+	
+	/**
+	 * Check the date field, if no date in file
+	 * replace 0 by imported date
+	 */
+	public long validateDate() {
+		if(this.readingDate == 0) {
+			Date date = new Date();
+			this.readingDate = date.getTime();
+		}
+		return this.readingDate;
+	}
+	
+	/**
+	 * Provide a unit for item if it is absent
+	 */
+	public void ValidateUnit() {
+		if(this.unit == null || this.unit.equals("")) {
+			if(this.readingType.equals("Temperature")|| this.readingType.equals("temp")) {
+				this.unit = "Fahrenheit";
+			}else if(this.readingType.equals("Humidity")|| this.readingType.equals("humidity")){
+				this.unit = "Percent";
+			}else if(this.readingType.equals("Pressure")|| this.readingType.equals("bar_press")){
+				this.unit = "Bar";
+			}else if(this.readingType.equals("Particulate")|| this.readingType.equals("particulate")){
+				this.unit = "PPM";
+			}
+			
+		}
+	}
 }
