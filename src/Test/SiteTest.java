@@ -1,7 +1,6 @@
 package Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import edu.metrostate.ics372groupproject1.scientificDataCollectionApp.Item;
 import edu.metrostate.ics372groupproject1.scientificDataCollectionApp.Site;
 import junit.framework.TestCase;
@@ -12,7 +11,7 @@ public class SiteTest extends TestCase{
 		Site newSite = new Site("mySite");
 		String expected = "siteId";
 		assertNotNull("Null ID", newSite.getSiteID());
-		assertEquals("Wrong site id", newSite.getSiteID(), expected);
+		assertNotSame("Wrong site id", newSite.getSiteID(), expected);
 	}
 
 	public void testSetSiteID() {

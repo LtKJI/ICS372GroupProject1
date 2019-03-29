@@ -64,7 +64,11 @@ public class GraphicalUserInterface {
 			}
 		});
 		
-		//main panel that takes care of input files
+		/**
+		 * Main panel for the GUI
+		 * @param
+		 * takes a frame and a static Record object
+		 */
 		ImportReadingPanel importReadingPanel = new ImportReadingPanel(frame, record);
 		frame.getContentPane().add(importReadingPanel);
 		frame.setLocationByPlatform(true);

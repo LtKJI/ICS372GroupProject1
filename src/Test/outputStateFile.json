@@ -1,0 +1,21 @@
+[
+  {
+    "study_name": "TestStudy",
+    "study_id": "1",
+    "sites": [
+      {
+        "site_ID": "12513",
+        "readings": [
+          {
+            "site_id": "12513",
+            "reading_type": "humidity",
+            "reading_id": "48934j",
+            "reading_value": 84.0,
+            "reading_unit": "Percent",
+            "reading_date": 1515354694451
+          }
+        ]
+      }
+    ]
+  }
+]

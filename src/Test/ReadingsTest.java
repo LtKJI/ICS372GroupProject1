@@ -14,7 +14,7 @@ public class ReadingsTest extends TestCase{
 		assertNotNull("No object created", read);
 	}
 
-	public void testGetReadings() {
+	public void testGetReadings() throws Exception{
 		Readings read = new Readings();
 		Item item1 = new Item();
 		ArrayList<Item> list = new ArrayList<Item>();

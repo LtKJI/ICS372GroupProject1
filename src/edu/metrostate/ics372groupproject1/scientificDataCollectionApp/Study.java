@@ -1,7 +1,11 @@
 package edu.metrostate.ics372groupproject1.scientificDataCollectionApp;
 
 import java.util.ArrayList;
+//import java.util.HashMap;
+//import java.util.HashSet;
 import java.util.Iterator;
+//import java.util.Map;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

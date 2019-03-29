@@ -6,9 +6,10 @@ import edu.metrostate.ics372groupproject1.scientificDataCollectionApp.Item;
 import junit.framework.TestCase;
 
 public class ItemTest extends TestCase {
-
+	Item item1 = new Item("12345", "Temp", "", "12547g", 25, 0);
+	Item item2 = new Item("12345", null, null, null, 5, 0);
+	
 	public void testGetSiteID() {
-		Item item1 = new Item("12345", "Temp", "", "12547g", 25, 0);
 		assertEquals("12345", item1.getSiteID());
 		assertNotNull("site ID is not null", item1.getSiteID());
 		Item item2 = new Item(null, "Temp", "", "12547g", 25, 0);
@@ -16,16 +17,16 @@ public class ItemTest extends TestCase {
 	}
 
 	public void testGetReadingType() {
-		Item item1 = new Item();
-		assertEquals("Reading type is null", null, item1.getReadingType());
-		assertTrue(item1.getReadingType() == null);
+		Item item = new Item();
+		assertEquals("Reading type is null", null, item.getReadingType());
+		assertTrue(item.getReadingType() == null);
 	}
 
 	public void testSetReadingType() {
-		Item item1 = new Item();
+		Item item = new Item();
 		String s = "Snow Fall";
-		item1.setReadingType(s);
-		assertEquals(s, item1.getReadingType());
+		item.setReadingType(s);
+		assertEquals(s, item.getReadingType());
 	}
 
 	public void testGetReadingID() {
@@ -34,16 +35,14 @@ public class ItemTest extends TestCase {
 	}
 
 	public void testSetReadingID() {
-		Item item1 = new Item("12345", null, null, null, 5, 0);
-		item1.setReadingID("new ID");
-		assertTrue(item1.getReadingID().equals("new ID"));
-		assertFalse(item1.getReadingID().equals("12345"));
+		item2.setReadingID("new ID");
+		assertTrue(item2.getReadingID().equals("new ID"));
+		assertFalse(item2.getReadingID().equals("12345"));
 	}
 
 	public void testGetReadingValue() {
-		Item item1 = new Item("12345", null, null, null, 5, 0);
-		assertTrue(item1.getReadingValue() == 5);
-		assertFalse(item1.getReadingValue() == 3);
+		assertTrue(item2.getReadingValue() == 5);
+		assertFalse(item2.getReadingValue() == 3);
 	}
 
 	public void testSetReadingValue() {
@@ -54,30 +53,27 @@ public class ItemTest extends TestCase {
 	}
 
 	public void testGetReadingDate() {
-		Item item1 = new Item("12345", null, null, null, 5, 0);
-		assertTrue(item1.getReadingDate() == 0);
-		item1.validateDate();
-		assertFalse(item1.getReadingDate() == 0);
+		assertTrue(item2.getReadingDate() == 0);
+		item2.validateDate();
+		assertFalse(item2.getReadingDate() == 0);
 	}
 
 	public void testSetReadingDate() {
-		Item item1 = new Item("12345", null, null, null, 5, 0);
 		Date date = new Date();
 		long today = date.getTime();
-		item1.setReadingDate(today);
-		assertEquals(today, item1.getReadingDate());
+		item2.setReadingDate(today);
+		assertEquals(today, item2.getReadingDate());
 	}
 	
 	public void testdateIsValidatedToTodaysDate() {
-		Item item1 = new Item("12345", "Temp", "", "12547g", 25, 0);
 		Date date = new Date();
 		long expected = date.getTime();
 		long actual = item1.validateDate();
 		assertEquals(expected, actual);
 		//reading date should not be alter
 		long today = date.getTime();
-		Item item2 = new Item("12345", "Temp", "","12547g",25, today);
-		assertEquals(today, item2.validateDate());
+		Item item = new Item("12345", "Temp", "","12547g",25, today);
+		assertEquals(today, item.validateDate());
 	}
 	public void testValidateUnitForTemparatureReading() {
 		Item item1 = new Item("12345", "Temperature", "", "12547g", 25, 0);

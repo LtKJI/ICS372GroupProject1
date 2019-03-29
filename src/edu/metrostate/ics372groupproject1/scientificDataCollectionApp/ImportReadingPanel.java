@@ -39,7 +39,7 @@ public class ImportReadingPanel extends JPanel {
 	private static String siteID = null, StudyName = null, StudyID = null;
 	private Site selectedSite; //will hold reference to the current site in program
 	private Study importedStudy = null; //will reference the current study at hand
-	private Record records; // global list of studies collected
+	private static Record records = null; // global list of studies collected
 	// Swing components
 	private JFrame frame;
 	private JFileChooser chooser;
@@ -50,7 +50,7 @@ public class ImportReadingPanel extends JPanel {
 	private JScrollPane scrollPane;
 	
 	public ImportReadingPanel(JFrame frame, Record studyRecord) {
-		//initialize all the widgets
+		//initialize all global variable
 		this.frame = frame;
 		xmlFile = new XMLFile();
 		records = studyRecord;
@@ -162,10 +162,14 @@ public class ImportReadingPanel extends JPanel {
 							//parse JSON
 							readings = JSONFile.readJSON(importedFile);
 							if (StudyName != null && StudyID != null && !StudyID.equals("")) {
-								//find study in record if it exist in record
-								importedStudy = records.getStudy(StudyID, StudyName);
-								//Check if imported study is null if not create new
-								if (importedStudy == null) {
+								//Check if imported study is null and record is empty, create new study
+								if (importedStudy == null && records.isEmpty()) {
+									importedStudy = new Study(StudyID, StudyName);
+								}else if(records.getStudy(StudyID, StudyName) != null){
+									//find study in record if it exist in record
+									importedStudy = records.getStudy(StudyID, StudyName);
+								}else {
+									//study not found in record create new one
 									importedStudy = new Study(StudyID, StudyName);
 								}
 								//Add empty sites to study
@@ -243,7 +247,6 @@ public class ImportReadingPanel extends JPanel {
 						siteIDField.requestFocus();
 					}else {
 						selectedSite = importedStudy.getSiteByID(siteID);
-					
 						/**
 						 * Add the study to the records if it is not already
 						 * in record

@@ -6,10 +6,12 @@ import com.google.gson.annotations.SerializedName;
 
 public class Site {
 	
-	private String siteID;
 	private boolean recording;
+	@SerializedName("site_ID")
+	@Expose
+	private String siteID;
 	//Creating collection class to store objects read from JSON file.
-	@SerializedName("site_readings")
+	@SerializedName("readings")
 	@Expose
 	private ArrayList<Item> allItems = new ArrayList<>();
 	
