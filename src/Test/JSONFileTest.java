@@ -80,7 +80,7 @@ public class JSONFileTest extends TestCase{
 		int actual = mockRecord1.size();
 		assertEquals(1, actual);
 		
-		//test the equality of nstudy and that of mockRecord1
+		//test the equality of study and that of mockRecord1
 		assertEquals(nstudy, mockRecord1.get(0));
 		
 		assertTrue(mockRecord1.get(0).getStudyID().equals("1"));
@@ -89,10 +89,15 @@ public class JSONFileTest extends TestCase{
 		
 		assertFalse(mockRecord1.get(0).getStudyName().equals("First Study"));
 	}
-	
-	public void testloadStateStudyIsEqual() {
-		Site loadedSite = mockRecord1.get(0).getAllSite().get(0);
-		assertEquals(nItem, loadedSite);
+//	
+	@Test
+	public void testloadStateStudyIsEqual() throws Exception {
+		
+		Record mockrecord = Mockito.mock(Record.class);
+		mockrecord = JSONFile.loadState(outFileName);
+		
+		Site loadedSite = mockrecord.get(0).getAllSite().get(0);
+		assertEquals(nItem, loadedSite.getItems().get(0));
 		
 		assertTrue(loadedSite.getSiteID().equals("12513"));
 		

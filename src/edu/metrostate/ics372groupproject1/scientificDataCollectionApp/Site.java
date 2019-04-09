@@ -41,7 +41,7 @@ public class Site {
 	
 	public void setItems(ArrayList<Item> items) {
 		for(Item i : items) {
-			if (i.getReadingID() == this.siteID) {
+			if (i.getSiteID() == this.siteID) {
 				allItems.add(i);
 			}
 		}

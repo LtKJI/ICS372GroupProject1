@@ -1,6 +1,5 @@
 package Test;
 
-import java.util.ArrayList;
 import edu.metrostate.ics372groupproject1.scientificDataCollectionApp.Item;
 import edu.metrostate.ics372groupproject1.scientificDataCollectionApp.Site;
 import junit.framework.TestCase;
@@ -42,14 +41,13 @@ public class SiteTest extends TestCase{
 
 	public void testSetItems() {
 		Site newSite = new Site("12345");
-		ArrayList<Item> items = new ArrayList<Item>();
 		Item item1 = new Item("12345", "Temp", "Fahrenheit", "12547g", 25, 0);
-		Item item2 = new Item("12345", "Temp", "Fahrenheit", "12547g", 26, 2);
+		Item item2 = new Item("12345", "Temp", "Fahrenheit", "12547j", 26, 2);
 		newSite.setRecording(true);
-		items.add(item1);
-		items.add(item2);
-		newSite.setItems(items);
-		assertTrue(newSite.getItems().contains(item1) && newSite.getItems().contains(item2));
+		newSite.addItem(item1);
+		newSite.addItem(item2);
+		assertTrue(newSite.getItems().contains(item2));
+		assertTrue(newSite.getItems().contains(item1));
 	}
 
 	public void testAddItem() {
@@ -108,6 +106,11 @@ public class SiteTest extends TestCase{
 	}
 	
 	public void testToString() {
-		// To be implemented
+		Site newSite = new Site("12345");
+		newSite.setRecording(true);
+		Item item1 = new Item("12345", "Humidity", "percent", "12547g", 25, 0);
+		newSite.addItem(item1);
+		String expected = item1.toString() + "\n\r";
+		assertEquals("Wrong string output", expected, newSite.toString());
 	}
 }

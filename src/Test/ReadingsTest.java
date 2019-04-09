@@ -1,5 +1,7 @@
 package Test;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.util.ArrayList;
 
 import edu.metrostate.ics372groupproject1.scientificDataCollectionApp.Item;
@@ -9,6 +11,11 @@ import junit.framework.TestCase;
 
 public class ReadingsTest extends TestCase{
 	
+	ArrayList<Item> list = new ArrayList<Item>();
+	Item item1 = new Item("1258", "humidity", "Percent", "22222", 10, 0);
+	Item item2 = new Item("12345", "Temp", "Fahrenheit", "12547g", 25, 1515354694451l);
+	
+	
 	public void testReadings() {
 		Readings read = new Readings();
 		assertNotNull("No object created", read);
@@ -16,31 +23,22 @@ public class ReadingsTest extends TestCase{
 
 	public void testGetReadings() throws Exception{
 		Readings read = new Readings();
-		Item item1 = new Item();
-		ArrayList<Item> list = new ArrayList<Item>();
 		list.add(item1);
+		list.add(item2);
 		read.setReadings(list);
-		assertEquals("The reading was not included",item1, list.get(0));
+		assertTrue(read.getReadings().contains(item1));
+		assertEquals("The reading has the same item as list", read.getReadings().get(0), list.get(0));
 	}
 
 	public void testToString() {
 		Readings read = new Readings();
-		Item item1 = new Item("12345", "Temp", "", "12547g", 25, 0);
-		ArrayList<Item> list = new ArrayList<Item>();
-		list.add(item1);
+		list.add(item2);
 		read.setReadings(list);
-		String expected = "{\r\n" + 
-				"   \"site_readings\":[\r\n" + 
-				"      {\r\n" + 
-				"         \"site_id\":\"12345\",\r\n" + 
-				"	  \"reading_type\":\"Temp\",\r\n" + 
-				"         \"reading_id\":\"12547g\",\r\n" + 
-				"	  \"reading_value\": 25,\r\n" + 
-				"	  \"reading_date\": 0\r\n" + 
-				"      }" + 
-				"   ]\r\n" + 
-				"}";
-		assertEquals("Wrong string output", expected, read.toString());
+		String expected = item2.toString();		
+		assertNotEquals("Wrong string output", expected, read.toString());
+		
+		expected += "\n\n";
+		assertEquals("the strings should equal", expected, read.toString());
 	}
 
 }
